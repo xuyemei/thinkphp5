@@ -11,7 +11,6 @@ class Test extends Controller
 
         $data = input('post.');
         if($data['mt'] != 1){
-            exception('数据不合法哦');
             throw new ApiException('数据不合法哦',403);
 
         }
