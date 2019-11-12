@@ -11,4 +11,8 @@ return [
     'admin_user_status_normal'=>1,//正常
     'admin_user_status_delete'=>-1,//删除
     'admin_user_status_padding'=>0,//未知
+
+    //接口返回状态码
+    'success'=>1,
+    'error'=>0,
 ];

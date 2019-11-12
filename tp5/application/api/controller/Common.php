@@ -41,7 +41,20 @@ class Common extends Controller
         if(!IAuth::checkSign($signData)){
             throw new ApiException('sign授权码不正确',401);
         }
-        Cache::set($headers['sign'],1,config('app.sign_cache_time'));
+
+        if(config('app_debug') == false){
+            //设置每个sign只能使用一次，缓存中存在，说明已经使用过，请求不通过
+            if(Cache::get($headers['sign'])){
+                return false;
+            };
+            Cache::set($headers['sign'],1,config('app.sign_cache_time'));
+
+            //设置一次请求的有效时间为10分钟
+            if(time()-intval($param['time']) > config('app.app_sign_expire_time')){
+                return false;
+            }
+        }
+
 
         $this->headers = $headers;
 

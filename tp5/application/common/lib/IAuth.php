@@ -35,21 +35,11 @@ class IAuth{
 
     public static function checkSign($data){
 
-        //设置每个sign只能使用一次，缓存中存在，说明已经使用过，请求不通过
-        if(Cache::get($data['sign'])){
-            return false;
-        };
-
         if(empty($data['sign'])
             || empty($data['did']
             || empty($data['app-type'])
             )
         ){
-            return false;
-        }
-
-        //设置一次请求的有效时间为10分钟
-        if(time()-intval($data['time']) > config('app.app_sign_expire_time')){
             return false;
         }
 
