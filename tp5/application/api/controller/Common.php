@@ -1,24 +1,57 @@
 <?php
 namespace app\api\controller;
 
+use app\common\lib\Aes;
+use think\Cache;
 use think\Controller;
 use app\common\lib\exception\ApiException;
+use app\common\lib\IAuth;
 
-class Test extends Controller
+class Common extends Controller
 {
-    public function save()
+
+    public $headers = null;
+    public function _initialize()
     {
+        $this->checkRequestAuth();
+//        $this->testAes();
 
-        $data = input('post.');
-        if($data['mt'] != 1){
-            throw new ApiException('数据不合法哦',403);
+    }
 
+    public function checkRequestAuth(){
+        //获取header 头里面的数据
+        $headers = request()->header();
+        $param = input('param.');
+
+        if(empty($headers['sign'])){
+            throw new ApiException('sign不存在',400);
         }
 
-        return show(1,'ok',$data,201);
+        if(!in_array($headers['app-type'],config('app.appType'))){
+            throw new ApiException('app-type不合法',400);
+        }
+        //aes加解密
+        $jiamiHeader = [
+            'did'=>$headers['did'],
+            'app-type'=>$headers['app-type'],
+        ];
+        $signData = array_merge($jiamiHeader,$param);
+        $signData['sign']=$headers['sign'];
+        //sign检验
+        if(!IAuth::checkSign($signData)){
+            throw new ApiException('sign授权码不正确',401);
+        }
+        Cache::set($headers['sign'],1,config('app.sign_cache_time'));
+
+        $this->headers = $headers;
+
     }
 
-    public function welcome(){
-        return 'hello';
+    public function testAes(){
+        $data = input('post.');
+//        echo IAuth::setSign();die;
+        $str = IAuth::setSign($data);
+        (new Aes())->decrypt($str);
     }
+
 }

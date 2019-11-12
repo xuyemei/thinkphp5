@@ -4,7 +4,8 @@ namespace app\api\controller;
 use think\Controller;
 use app\common\lib\exception\ApiException;
 
-class Test extends Controller
+
+class Test extends Common
 {
     public function save()
     {
